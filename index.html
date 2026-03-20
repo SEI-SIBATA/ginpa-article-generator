@@ -1,0 +1,1944 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SmartHP｜Job 記事ジェネレーター</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c-rice: #8B7E3B;
+  --c-rice-light: #F7F3E3;
+  --c-rice-mid: #E8E0C0;
+  --c-rice-dark: #6B5F2B;
+  --c-green: #4A7C59;
+  --c-green-light: #EBF5EE;
+  --c-green-dark: #2D5A3A;
+  --c-earth: #8B6E4E;
+  --c-earth-light: #F5EDE4;
+  --c-sky: #5B8FA8;
+  --c-sky-light: #E8F3F8;
+  --c-white: #FFFFFF;
+  --c-bg: #FFFFFF;
+  --c-surface: #F7F5F2;
+  --c-text: #1E1C18;
+  --c-text-sub: #7A756A;
+  --c-border: #E8E4DD;
+  --c-shadow: rgba(30, 28, 24, 0.07);
+  --c-danger: #C0392B;
+  --c-danger-light: #FDECEA;
+  --font-display: 'Zen Maru Gothic', sans-serif;
+  --font-body: 'Noto Sans JP', sans-serif;
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: var(--font-body);
+  background: #FFFFFF;
+  color: var(--c-text);
+  min-height: 100dvh;
+  padding-bottom: env(safe-area-inset-bottom, 20px);
+}
+
+/* ===== HEADER ===== */
+.header {
+  background: #FFFFFF;
+  border-bottom: 1px solid var(--c-border);
+  padding: 12px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 0 var(--c-border);
+}
+
+.header-inner {
+  max-width: 1160px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+  /* 背景なし：logo.png が自前の背景色を持つため */
+  background: transparent;
+  box-shadow: 0 0 0 1px var(--c-border);
+}
+
+.logo-icon img {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 12px;
+  display: block;
+}
+
+.logo-text {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--c-text);
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+}
+
+.logo-sub {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--c-text-sub);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  margin-top: 2px;
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--c-green);
+  background: var(--c-green-light);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--c-green);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ===== MAIN ===== */
+.main {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== COLUMN LAYOUT (base: flex column, overridden per breakpoint) ===== */
+
+/* ===== TAB NAV ===== */
+.tab-nav {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+  background: var(--c-surface);
+  border-radius: var(--radius);
+  padding: 4px;
+  border: 1px solid var(--c-border);
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 9px 4px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.tab-btn.active {
+  background: var(--c-text);
+  box-shadow: 0 2px 8px rgba(44, 42, 36, 0.15);
+}
+
+.tab-icon { font-size: 16px; line-height: 1; }
+
+.tab-label {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--c-text-sub);
+  font-family: var(--font-body);
+}
+
+.tab-btn.active .tab-label { color: var(--c-white); }
+
+/* tab-btn for knowledge: amber accent */
+.tab-btn.tab-knowledge.active { background: var(--c-rice-dark); }
+.tab-btn.tab-settings.active  { background: var(--c-sky); }
+
+/* ===== CARD ===== */
+.card {
+  background: #FFFFFF;
+  border-radius: var(--radius);
+  border: 1px solid var(--c-border);
+  box-shadow: 0 2px 8px var(--c-shadow), 0 0 0 1px var(--c-border);
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.card-section {
+  padding: 18px 20px;
+}
+
+.card-section + .card-section {
+  border-top: 1px solid var(--c-border);
+}
+
+.section-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--c-text-sub);
+  margin-bottom: 8px;
+  letter-spacing: 0.02em;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--c-text);
+  margin-bottom: 4px;
+}
+
+.section-desc {
+  font-size: 12px;
+  color: var(--c-text-sub);
+  line-height: 1.6;
+}
+
+/* ===== MODEL SELECTOR ===== */
+.model-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.model-btn {
+  padding: 12px 8px;
+  border: 1.5px solid var(--c-border);
+  background: var(--c-white);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  position: relative;
+}
+
+.model-btn.active {
+  border-color: var(--c-green);
+  background: var(--c-green-light);
+}
+
+.model-btn.no-key {
+  opacity: 0.5;
+}
+
+.model-name {
+  font-size: 13px;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 2px;
+  color: var(--c-text);
+}
+
+.model-btn.active .model-name { color: var(--c-green-dark); }
+
+.model-desc {
+  font-size: 10px;
+  color: var(--c-text-sub);
+}
+
+.model-btn.active .model-desc { color: var(--c-green); }
+
+.model-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: var(--c-rice);
+  color: white;
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-weight: 700;
+}
+
+.model-key-indicator {
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  font-size: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.model-key-indicator.ok   { background: var(--c-green); color: white; }
+.model-key-indicator.none { background: var(--c-border); color: var(--c-text-sub); }
+
+/* ===== FORM ELEMENTS ===== */
+.select-wrap { position: relative; }
+
+.select-wrap select {
+  width: 100%;
+  padding: 12px 40px 12px 14px;
+  border: 1.5px solid var(--c-border);
+  border-radius: var(--radius-sm);
+  background: var(--c-white);
+  font-size: 14px;
+  font-family: var(--font-body);
+  color: var(--c-text);
+  appearance: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.select-wrap select:focus {
+  outline: none;
+  border-color: var(--c-green);
+}
+
+.select-wrap::after {
+  content: '';
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0; height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid var(--c-text-sub);
+  pointer-events: none;
+}
+
+.input-field {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--c-border);
+  border-radius: var(--radius-sm);
+  background: var(--c-white);
+  font-size: 14px;
+  font-family: var(--font-body);
+  color: var(--c-text);
+  transition: border-color 0.2s;
+  resize: vertical;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--c-green);
+}
+
+.input-field::placeholder { color: #B8B3A8; }
+
+.input-field.password-field { letter-spacing: 0.05em; }
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* ===== GENERATE BTN ===== */
+.generate-btn {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, var(--c-green) 0%, var(--c-green-dark) 100%);
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: var(--font-display);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: 0.04em;
+  position: relative;
+  overflow: hidden;
+}
+
+.generate-btn:active { transform: scale(0.98); }
+
+.generate-btn.loading {
+  background: var(--c-text-sub);
+  pointer-events: none;
+}
+
+/* ===== OUTPUT ===== */
+.output-area {
+  display: none;
+  margin-bottom: 16px;
+}
+
+.output-area.show {
+  display: block;
+  animation: fadeUp 0.4s ease;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.output-card {
+  background: var(--c-white);
+  border-radius: var(--radius);
+  border: 1px solid var(--c-green);
+  overflow: hidden;
+}
+
+.output-header {
+  padding: 14px 20px;
+  background: var(--c-green-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--c-border);
+}
+
+.output-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--c-green-dark);
+}
+
+.output-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  padding: 6px 14px;
+  border: 1px solid var(--c-border);
+  background: var(--c-white);
+  border-radius: 20px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--c-text);
+  font-family: var(--font-body);
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.action-btn:active { background: var(--c-bg); }
+
+.action-btn.primary {
+  background: var(--c-green);
+  color: white;
+  border-color: var(--c-green);
+}
+
+.output-body {
+  padding: 20px;
+  font-size: 14px;
+  line-height: 1.9;
+  color: var(--c-text);
+  white-space: pre-wrap;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+/* ===== FOOTER STATS ===== */
+.footer-stats {
+  background: var(--c-bg);
+  border-top: 1px solid var(--c-border);
+  padding: 14px 20px;
+}
+
+.stats-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: var(--c-text-sub);
+}
+
+.stats-count {
+  font-weight: 700;
+  color: var(--c-text);
+}
+
+.history-btn {
+  padding: 5px 14px;
+  border: 1px solid var(--c-border);
+  background: var(--c-white);
+  border-radius: 20px;
+  font-size: 11px;
+  cursor: pointer;
+  color: var(--c-text-sub);
+  font-family: var(--font-body);
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.history-btn:active { background: var(--c-bg); }
+
+/* ===== CHIPS ===== */
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.chip {
+  padding: 6px 12px;
+  border: 1px solid var(--c-border);
+  background: var(--c-white);
+  border-radius: 20px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--c-text-sub);
+  font-family: var(--font-body);
+  transition: all 0.15s;
+}
+
+.chip:active, .chip.selected {
+  border-color: var(--c-green);
+  background: var(--c-green-light);
+  color: var(--c-green-dark);
+}
+
+/* ===== REVIEW STARS ===== */
+.review-stars { display: flex; gap: 4px; margin-bottom: 10px; }
+
+.star-btn {
+  width: 36px; height: 36px;
+  border: 1.5px solid var(--c-border);
+  background: var(--c-white);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.star-btn.active {
+  border-color: var(--c-rice);
+  background: var(--c-rice-light);
+}
+
+/* ===== SEASONAL HINT ===== */
+.seasonal-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--c-rice-light);
+  border-radius: var(--radius-sm);
+  margin-bottom: 12px;
+  font-size: 12px;
+  color: var(--c-rice-dark);
+  border: 1px solid var(--c-rice-mid);
+}
+
+.seasonal-icon { font-size: 16px; flex-shrink: 0; }
+
+/* ===== KNOWLEDGE PANEL ===== */
+.knowledge-panel, .settings-panel { display: none; }
+.knowledge-panel.active, .settings-panel.active { display: block; }
+
+.save-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, var(--c-rice) 0%, var(--c-rice-dark) 100%);
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: var(--font-display);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: 0.04em;
+}
+
+.save-btn:active { transform: scale(0.98); }
+
+.save-btn.settings-save {
+  background: linear-gradient(135deg, var(--c-sky) 0%, #3A6F87 100%);
+}
+
+/* ===== KNOWLEDGE STATUS INDICATOR ===== */
+.knowledge-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--c-rice-light);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--c-rice-mid);
+  font-size: 12px;
+  color: var(--c-rice-dark);
+  font-weight: 500;
+}
+
+.knowledge-status.empty {
+  background: var(--c-bg);
+  border-color: var(--c-border);
+  color: var(--c-text-sub);
+}
+
+/* ===== API KEY INPUT ROW ===== */
+.api-key-row {
+  margin-bottom: 16px;
+}
+
+.api-key-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.api-key-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--c-text);
+}
+
+.api-key-tag {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--c-green-light);
+  color: var(--c-green-dark);
+  font-weight: 600;
+}
+
+.api-key-tag.free { background: var(--c-rice-light); color: var(--c-rice-dark); }
+
+.api-key-input-wrap {
+  position: relative;
+}
+
+.api-key-input-wrap input {
+  width: 100%;
+  padding: 11px 44px 11px 14px;
+  border: 1.5px solid var(--c-border);
+  border-radius: var(--radius-sm);
+  background: var(--c-white);
+  font-size: 13px;
+  font-family: var(--font-body);
+  color: var(--c-text);
+  transition: border-color 0.2s;
+}
+
+.api-key-input-wrap input:focus {
+  outline: none;
+  border-color: var(--c-sky);
+}
+
+.api-key-input-wrap input.has-key {
+  border-color: var(--c-green);
+  background: var(--c-green-light);
+}
+
+.api-key-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
+  color: var(--c-text-sub);
+}
+
+/* ===== ALERT / TOAST ===== */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--c-text);
+  color: white;
+  padding: 10px 22px;
+  border-radius: 24px;
+  font-size: 13px;
+  font-weight: 500;
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 999;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.toast.error {
+  background: var(--c-danger);
+}
+
+/* ===== ERROR BOX ===== */
+.error-box {
+  display: none;
+  padding: 12px 16px;
+  background: var(--c-danger-light);
+  border: 1px solid #F5C6C2;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--c-danger);
+  margin-bottom: 14px;
+  line-height: 1.6;
+}
+.error-box.show { display: block; }
+
+/* ===== KNOWLEDGE SUMMARY BADGE ===== */
+.knowledge-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--c-rice-light);
+  color: var(--c-rice-dark);
+  border: 1px solid var(--c-rice-mid);
+}
+
+/* ===== SECTION PANEL HEADER ===== */
+.panel-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--c-border);
+  background: var(--c-white);
+}
+
+.panel-header-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.panel-header-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+
+.panel-header-icon.knowledge { background: var(--c-rice-light); }
+.panel-header-icon.settings  { background: var(--c-sky-light); }
+
+/* ===== CHARACTER WELCOME ===== */
+.character-welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 16px 16px;
+  text-align: center;
+}
+
+.character-img-wrap {
+  position: relative;
+  width: 90px;
+  height: 90px;
+  margin-bottom: 10px;
+}
+
+.character-img-wrap img {
+  width: 90px;
+  height: 90px;
+  object-fit: contain;
+  border-radius: 50%;
+  animation: charFloat 3.5s ease-in-out infinite;
+  filter: drop-shadow(0 6px 12px rgba(139,126,59,0.18));
+}
+
+/* SVGキャラクター（画像ファイル未設定時のフォールバック） */
+.character-svg-fallback {
+  width: 90px;
+  height: 90px;
+  animation: charFloat 3.5s ease-in-out infinite;
+  filter: drop-shadow(0 6px 12px rgba(139,126,59,0.18));
+}
+
+@keyframes charFloat {
+  0%, 100% { transform: translateY(0px) rotate(-2deg); }
+  50%       { transform: translateY(-8px) rotate(2deg); }
+}
+
+.character-speech {
+  background: var(--c-rice-light);
+  border: 1px solid var(--c-rice-mid);
+  border-radius: 14px;
+  padding: 8px 16px;
+  font-size: 13px;
+  color: var(--c-rice-dark);
+  font-weight: 500;
+  position: relative;
+  max-width: 240px;
+}
+
+.character-speech::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-bottom: 8px solid var(--c-rice-mid);
+}
+
+.character-speech::after {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 7px solid var(--c-rice-light);
+}
+
+/* =====================================================
+   RESPONSIVE — 3 BREAKPOINTS
+   SP:      〜 639px
+   Tablet:  640px 〜 1023px
+   PC:      1024px 〜
+===================================================== */
+
+/* ── SP (base / default) ───────────────────────────── */
+.main {
+  max-width: 100%;
+  padding: 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.col-left, .col-right {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* SP: 右カラム(キャラ)→左カラム(フォーム) の順で表示 */
+.col-right { order: 1; }
+.col-left  { order: 2; }
+
+/* SPでキャラをコンパクトに */
+.character-welcome { padding: 16px 12px 12px; }
+.character-img-wrap,
+.character-img-wrap img,
+.character-svg-fallback { width: 76px; height: 76px; }
+.character-speech { font-size: 12px; padding: 7px 14px; }
+
+/* SP: output body の高さ上限 */
+.output-body { max-height: 320px; }
+
+/* ── Tablet: 640px 〜 1023px ───────────────────────── */
+@media (min-width: 640px) {
+  .main {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 24px 20px;
+  }
+
+  .card-section { padding: 20px 22px; }
+
+  .character-welcome { padding: 20px 16px 16px; }
+  .character-img-wrap,
+  .character-img-wrap img,
+  .character-svg-fallback { width: 100px; height: 100px; }
+  .character-speech { font-size: 13px; }
+
+  .output-body { max-height: 380px; }
+
+  /* タブのラベル文字を少し大きく */
+  .tab-label { font-size: 11px; }
+  .tab-btn   { padding: 10px 6px; }
+}
+
+/* ── PC: 1024px 〜 ─────────────────────────────────── */
+@media (min-width: 1024px) {
+  /* ヘッダー */
+  .header         { padding: 14px 48px; }
+  .header-inner   { max-width: 1200px; }
+  .logo-text      { font-size: 14px; }
+  .logo-sub       { font-size: 14px; }
+  .logo-icon,
+  .logo-icon img  { width: 48px; height: 48px; }
+
+  /* メインを横並び2カラムに */
+  .main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 48px;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 36px;
+  }
+
+  /* 左カラム（フォーム）: 70%幅、左側 */
+  .col-left {
+    flex: 0 0 70%;
+    width: 70%;
+    order: 1;
+  }
+
+  /* 右カラム（キャラ＋出力）: 残り30%、右側、sticky */
+  .col-right {
+    flex: 1;
+    min-width: 240px;
+    order: 2;
+    position: sticky;
+    top: 76px;
+    align-self: flex-start;
+    max-height: calc(100dvh - 96px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--c-border) transparent;
+  }
+
+  /* カードのpadding */
+  .card-section { padding: 22px 24px; }
+
+  /* キャラを大きく・余白を広く */
+  .character-welcome { padding: 36px 20px 28px; }
+  .character-img-wrap,
+  .character-img-wrap img,
+  .character-svg-fallback { width: 180px; height: 180px; }
+  .character-speech { font-size: 14px; padding: 11px 20px; max-width: 260px; }
+
+  /* 出力bodyの最大高さ */
+  .output-body { max-height: calc(100dvh - 380px); }
+
+  /* タブ文字を読みやすく */
+  .tab-label { font-size: 11px; }
+  .tab-btn   { padding: 11px 6px; }
+  .tab-icon  { font-size: 17px; }
+}
+
+/* ── Large PC: 1400px 〜 ───────────────────────────── */
+@media (min-width: 1400px) {
+  .main { max-width: 1400px; padding: 48px 60px; gap: 48px; }
+  /* 70%は維持したまま余白を広げる */
+  .character-img-wrap,
+  .character-img-wrap img,
+  .character-svg-fallback { width: 200px; height: 200px; }
+  .character-welcome { padding: 40px 24px 32px; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <!-- ロゴアイコン: logo.png があれば表示、なければSVGフォールバック -->
+      <div class="logo-icon" id="logo-icon-wrap">
+        <img id="logo-img" src="logo.png" alt="ロゴ"
+             style="width:40px;height:40px;object-fit:contain;border-radius:8px;display:block;"
+             onerror="this.style.display='none'; document.getElementById('logo-svg-fallback').style.display='block';">
+        <svg id="logo-svg-fallback" viewBox="0 0 100 130" xmlns="http://www.w3.org/2000/svg"
+             width="34" height="44" style="display:none;">
+          <path d="M50,6 C62,6 76,14 82,28 C88,42 87,60 82,73 C76,88 64,96 50,96 C36,96 22,88 18,73 C13,58 14,38 20,24 C27,9 38,6 50,6 Z"
+                fill="none" stroke="white" stroke-width="5" stroke-linejoin="round"/>
+          <path d="M22,55 C24,38 36,28 49,32 C61,36 66,48 60,58 C54,68 42,67 38,60 C34,53 39,45 46,47"
+                fill="none" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="50" y="115" text-anchor="middle" font-family="'Arial','Helvetica',sans-serif"
+                font-size="13" font-weight="700" fill="white" letter-spacing="5">GIN</text>
+          <text x="50" y="126" text-anchor="middle" font-family="'Arial','Helvetica',sans-serif"
+                font-size="8" fill="white" letter-spacing="0">✱</text>
+        </svg>
+      </div>
+      <div>
+        <div class="logo-text" id="app-title">SmartHP｜Job</div>
+        <div class="logo-sub" id="app-tagline">記事ジェネレーター</div>
+      </div>
+    </div>
+    <div class="status-badge">
+      <span class="status-dot"></span>
+      <span id="farm-name-badge">稼働中</span>
+    </div>
+  </div>
+</header>
+
+<!-- Toast notification -->
+<div class="toast" id="toast"></div>
+
+<main class="main">
+
+  <!-- ===== RIGHT COLUMN: キャラ・出力（モバイル：上部、デスクトップ：右） ===== -->
+  <div class="col-right">
+
+  <!-- ===== CHARACTER WELCOME ===== -->
+  <div id="character-area">
+    <div class="character-welcome">
+      <div class="character-img-wrap" id="char-img-wrap">
+        <img id="char-img" src="character.png" alt="キャラクター"
+             onerror="this.style.display='none'; document.getElementById('char-svg').style.display='block';"
+             style="display:block;">
+        <svg id="char-svg" class="character-svg-fallback" viewBox="0 0 100 120"
+             xmlns="http://www.w3.org/2000/svg" style="display:none;">
+          <ellipse cx="50" cy="52" rx="30" ry="35" fill="#F5F0E0" stroke="#D4C88A" stroke-width="2"/>
+          <ellipse cx="40" cy="46" rx="7" ry="8" fill="white" stroke="#D4C88A" stroke-width="1.5"/>
+          <ellipse cx="60" cy="46" rx="7" ry="8" fill="white" stroke="#D4C88A" stroke-width="1.5"/>
+          <ellipse cx="40" cy="47" rx="4" ry="5" fill="#C8A020"/>
+          <ellipse cx="60" cy="47" rx="4" ry="5" fill="#C8A020"/>
+          <circle cx="41" cy="45" r="1.2" fill="white"/>
+          <circle cx="61" cy="45" r="1.2" fill="white"/>
+          <path d="M33,56 C34,53 37,52 38,55" fill="none" stroke="#C8A020" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M44,62 C47,65 53,65 56,62" fill="none" stroke="#3A3020" stroke-width="2" stroke-linecap="round"/>
+          <ellipse cx="50" cy="59" rx="4" ry="3" fill="#F0B8B0" opacity="0.8"/>
+          <ellipse cx="18" cy="58" rx="10" ry="7" fill="#C8A020" transform="rotate(-20,18,58)"/>
+          <ellipse cx="82" cy="58" rx="10" ry="7" fill="#C8A020" transform="rotate(20,82,58)"/>
+          <ellipse cx="35" cy="20" rx="10" ry="6" fill="#C8A020" transform="rotate(-30,35,20)"/>
+          <ellipse cx="38" cy="90" rx="9" ry="7" fill="#C8A020"/>
+          <ellipse cx="62" cy="90" rx="9" ry="7" fill="#C8A020"/>
+        </svg>
+      </div>
+      <div class="character-speech" id="char-speech">なにを書きますか？✨</div>
+    </div>
+  </div>
+
+  <!-- ===== OUTPUT AREA ===== -->
+  <div class="output-area" id="output-area">
+    <div class="output-card">
+      <div class="output-header">
+        <span class="output-title" id="output-title">生成結果</span>
+        <div class="output-actions">
+          <button class="action-btn" onclick="copyOutput(event)">コピー</button>
+          <button class="action-btn primary" onclick="generate()">再生成</button>
+        </div>
+      </div>
+      <div class="output-body" id="output-body"></div>
+    </div>
+  </div><!-- /output-area -->
+
+  </div><!-- /col-right -->
+
+  <!-- ===== LEFT COLUMN: タブ・フォーム（モバイル：下部、デスクトップ：左） ===== -->
+  <div class="col-left">
+
+  <!-- ===== TAB NAV ===== -->
+  <nav class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('blog', this)">
+      <span class="tab-icon">📝</span>
+      <span class="tab-label">ブログ</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('instagram', this)">
+      <span class="tab-icon">📸</span>
+      <span class="tab-label">インスタ</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('review', this)">
+      <span class="tab-icon">⭐</span>
+      <span class="tab-label">返信</span>
+    </button>
+    <button class="tab-btn tab-knowledge" onclick="switchTab('knowledge', this)">
+      <span class="tab-icon">🌾</span>
+      <span class="tab-label">ナレッジ</span>
+    </button>
+    <button class="tab-btn tab-settings" onclick="switchTab('settings', this)">
+      <span class="tab-icon">⚙️</span>
+      <span class="tab-label">設定</span>
+    </button>
+  </nav>
+
+  <!-- ===== GENERATE PANEL (blog / instagram / review) ===== -->
+  <div id="generate-panel">
+
+    <div class="card">
+      <div class="card-section">
+        <div class="section-label">AIモデル</div>
+        <div class="model-grid">
+          <button class="model-btn active" data-model="Gemini" onclick="selectModel(this)">
+            <span class="model-key-indicator" id="ki-Gemini">✓</span>
+            <span class="model-badge">おすすめ</span>
+            <span class="model-name">Gemini</span>
+            <span class="model-desc">無料枠あり</span>
+          </button>
+          <button class="model-btn" data-model="Claude" onclick="selectModel(this)">
+            <span class="model-key-indicator" id="ki-Claude">✓</span>
+            <span class="model-name">Claude</span>
+            <span class="model-desc">高品質文章</span>
+          </button>
+          <button class="model-btn" data-model="ChatGPT" onclick="selectModel(this)">
+            <span class="model-key-indicator" id="ki-ChatGPT">✓</span>
+            <span class="model-name">ChatGPT</span>
+            <span class="model-desc">バランス型</span>
+          </button>
+        </div>
+        <!-- knowledge status -->
+        <div style="margin-top: 12px;" id="knowledge-status-bar">
+          <div class="knowledge-status empty" id="knowledge-status">
+            🌾 ナレッジ未設定 — 設定するとAIの精度が上がります
+          </div>
+        </div>
+      </div>
+
+      <div class="card-section" id="section-seasonal">
+        <div class="seasonal-hint">
+          <span class="seasonal-icon" id="seasonal-icon">🌱</span>
+          <span id="seasonal-text">読み込み中...</span>
+        </div>
+      </div>
+
+      <!-- BLOG SECTION -->
+      <div class="card-section" id="section-blog">
+        <div class="section-label">記事カテゴリ</div>
+        <div class="select-wrap" style="margin-bottom: 14px;">
+          <select id="blog-category">
+            <option>稲作の日常・田んぼだより</option>
+          </select>
+        </div>
+
+        <div class="section-label">テーマ・キーワード</div>
+        <input type="text" class="input-field" id="blog-keyword"
+          placeholder="例：つや姫の田植え、有機栽培へのこだわり" style="margin-bottom: 14px;">
+
+        <div class="two-col" style="margin-bottom: 14px;">
+          <div>
+            <div class="section-label">文字数</div>
+            <div class="select-wrap">
+              <select id="blog-length">
+                <option value="800">800〜1200字</option>
+                <option value="500">500〜800字</option>
+                <option value="1500">1500〜2000字</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <div class="section-label">トーン</div>
+            <div class="select-wrap">
+              <select id="blog-tone">
+                <option>あたたかく親しみやすい</option>
+                <option>まじめで誠実</option>
+                <option>楽しくカジュアル</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-label">追加の指示（任意）</div>
+        <textarea class="input-field" id="blog-extra" rows="2"
+          placeholder="例：SEO対策を意識、見出しにキーワードを含める"></textarea>
+      </div>
+
+      <!-- INSTAGRAM SECTION -->
+      <div class="card-section" id="section-instagram" style="display:none;">
+        <div class="section-label">投稿タイプ</div>
+        <div class="chip-row" id="insta-type" style="margin-bottom: 14px;">
+          <span class="chip selected" onclick="selectChip(this,'insta-type')">フィード投稿</span>
+          <span class="chip" onclick="selectChip(this,'insta-type')">リール説明文</span>
+          <span class="chip" onclick="selectChip(this,'insta-type')">ストーリーズ文</span>
+        </div>
+
+        <div class="section-label">写真の内容</div>
+        <input type="text" class="input-field" id="insta-photo"
+          placeholder="例：田植え直後の水田、夕焼けの田んぼ" style="margin-bottom: 14px;">
+
+        <div class="section-label">伝えたいこと</div>
+        <input type="text" class="input-field" id="insta-message"
+          placeholder="例：今年も美味しいお米を届けたい" style="margin-bottom: 14px;">
+
+        <div class="section-label">ハッシュタグの雰囲気</div>
+        <div class="chip-row" id="insta-hashtag">
+          <span class="chip selected" onclick="selectChip(this,'insta-hashtag')">地域密着</span>
+          <span class="chip" onclick="selectChip(this,'insta-hashtag')">おしゃれ</span>
+          <span class="chip" onclick="selectChip(this,'insta-hashtag')">農業仲間向け</span>
+          <span class="chip" onclick="selectChip(this,'insta-hashtag')">食べもの好き向け</span>
+        </div>
+      </div>
+
+      <!-- REVIEW SECTION -->
+      <div class="card-section" id="section-review" style="display:none;">
+        <div class="section-label">レビューの星評価</div>
+        <div class="review-stars" id="review-stars">
+          <button class="star-btn active" onclick="setStars(1)">⭐</button>
+          <button class="star-btn active" onclick="setStars(2)">⭐</button>
+          <button class="star-btn active" onclick="setStars(3)">⭐</button>
+          <button class="star-btn active" onclick="setStars(4)">⭐</button>
+          <button class="star-btn active" onclick="setStars(5)">⭐</button>
+        </div>
+
+        <div class="section-label">レビュー内容（コピペ）</div>
+        <textarea class="input-field" id="review-content" rows="3"
+          placeholder="お客様のレビュー内容をここに貼り付けてください" style="margin-bottom: 14px;"></textarea>
+
+        <div class="section-label">返信トーン</div>
+        <div class="chip-row" id="review-tone">
+          <span class="chip selected" onclick="selectChip(this,'review-tone')">感謝・丁寧</span>
+          <span class="chip" onclick="selectChip(this,'review-tone')">フレンドリー</span>
+          <span class="chip" onclick="selectChip(this,'review-tone')">改善姿勢</span>
+        </div>
+      </div>
+
+      <div class="card-section">
+        <div class="error-box" id="error-box"></div>
+        <button class="generate-btn" id="generate-btn" onclick="generate()">
+          記事を生成する
+        </button>
+      </div>
+
+      <div class="footer-stats">
+        <div class="stats-row">
+          <div>
+            今月 <span class="stats-count" id="stats-total">0</span>件生成
+            <span style="margin-left: 8px; font-size: 11px;">
+              G:<span id="stats-g">0</span>
+              C:<span id="stats-c">0</span>
+              O:<span id="stats-o">0</span>
+            </span>
+          </div>
+          <button class="history-btn" onclick="showHistory()">履歴</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /generate-panel -->
+
+  <!-- ===== KNOWLEDGE PANEL ===== -->
+  <div class="knowledge-panel" id="knowledge-panel">
+    <div class="card">
+      <div class="card-section panel-header">
+        <div class="panel-header-inner">
+          <div class="panel-header-icon knowledge">🌾</div>
+          <div>
+            <div class="section-title">ナレッジ設定</div>
+            <div class="section-desc">農園の情報を登録すると、AIが農園らしい文章を生成します</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-section">
+        <div class="section-label">農園名</div>
+        <input type="text" class="input-field" id="k-farm-name"
+          placeholder="例：銀波農園" style="margin-bottom: 16px;">
+
+        <div class="section-label">農園の基本情報</div>
+        <textarea class="input-field" id="k-basic-info" rows="3"
+          placeholder="例：山形県庄内地方で30年以上お米を作っています。主な品種はつや姫・コシヒカリ・ひとめぼれ。有機JAS認証取得。" style="margin-bottom: 16px;"></textarea>
+
+        <div class="section-label">想い・理念</div>
+        <textarea class="input-field" id="k-philosophy" rows="3"
+          placeholder="例：食べた人が笑顔になるお米を届けたい。農薬を極力使わず、自然の力を大切にした栽培を続けています。" style="margin-bottom: 16px;"></textarea>
+
+        <div class="section-label">こだわり・特徴</div>
+        <textarea class="input-field" id="k-commitment" rows="3"
+          placeholder="例：雪解け水で育てたお米。土づくりに3年かける低農薬栽培。食味計で毎ロットを測定し85点以上のみ出荷。" style="margin-bottom: 16px;"></textarea>
+
+        <div class="section-label">農園の歴史</div>
+        <textarea class="input-field" id="k-history" rows="3"
+          placeholder="例：祖父の代から続く3代目農家。昭和55年創業。平成10年に有機栽培に転換。令和2年からオンライン直販を開始。" style="margin-bottom: 16px;"></textarea>
+
+        <div class="section-label">顧客情報（ターゲット・リピーター層）</div>
+        <textarea class="input-field" id="k-customer" rows="3"
+          placeholder="例：子育て世代・健康意識の高い30〜50代。リピーター率70%。お中元・お歳暮ギフトの需要が多い。産地直送を好む。" style="margin-bottom: 16px;"></textarea>
+
+        <div class="section-label">NGワード（カンマ区切り）</div>
+        <input type="text" class="input-field" id="k-ng-words"
+          placeholder="例：最高品質, No.1, 業界最安値, 保証, 絶対">
+      </div>
+
+      <div class="card-section">
+        <button class="save-btn" onclick="saveKnowledge()">ナレッジを保存する</button>
+      </div>
+    </div>
+  </div><!-- /knowledge-panel -->
+
+  <!-- ===== SETTINGS PANEL ===== -->
+  <div class="settings-panel" id="settings-panel">
+    <div class="card">
+      <div class="card-section panel-header">
+        <div class="panel-header-inner">
+          <div class="panel-header-icon settings">⚙️</div>
+          <div>
+            <div class="section-title">API設定</div>
+            <div class="section-desc">使用するAIのAPIキーを入力してください。端末内にのみ保存されます。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-section">
+
+        <!-- Gemini -->
+        <div class="api-key-row">
+          <div class="api-key-label">
+            <span class="api-key-name">Gemini</span>
+            <span class="api-key-tag free">無料枠あり</span>
+          </div>
+          <div class="api-key-input-wrap">
+            <input type="password" id="key-gemini" class="input-field"
+              placeholder="AIzaSy..." autocomplete="off">
+            <button class="api-key-toggle" onclick="toggleKeyVisibility('key-gemini', this)">👁</button>
+          </div>
+          <div style="margin-top: 6px; font-size: 11px; color: var(--c-text-sub);">
+            <a href="https://aistudio.google.com/apikey" target="_blank" style="color: var(--c-sky);">Google AI Studio</a> でAPIキーを取得
+          </div>
+        </div>
+
+        <!-- Claude -->
+        <div class="api-key-row">
+          <div class="api-key-label">
+            <span class="api-key-name">Claude</span>
+            <span class="api-key-tag">高品質</span>
+          </div>
+          <div class="api-key-input-wrap">
+            <input type="password" id="key-claude" class="input-field"
+              placeholder="sk-ant-..." autocomplete="off">
+            <button class="api-key-toggle" onclick="toggleKeyVisibility('key-claude', this)">👁</button>
+          </div>
+          <div style="margin-top: 6px; font-size: 11px; color: var(--c-text-sub);">
+            <a href="https://console.anthropic.com/" target="_blank" style="color: var(--c-sky);">Anthropic Console</a> でAPIキーを取得
+          </div>
+        </div>
+
+        <!-- ChatGPT -->
+        <div class="api-key-row">
+          <div class="api-key-label">
+            <span class="api-key-name">ChatGPT</span>
+            <span class="api-key-tag">バランス型</span>
+          </div>
+          <div class="api-key-input-wrap">
+            <input type="password" id="key-chatgpt" class="input-field"
+              placeholder="sk-..." autocomplete="off">
+            <button class="api-key-toggle" onclick="toggleKeyVisibility('key-chatgpt', this)">👁</button>
+          </div>
+          <div style="margin-top: 6px; font-size: 11px; color: var(--c-text-sub);">
+            <a href="https://platform.openai.com/api-keys" target="_blank" style="color: var(--c-sky);">OpenAI Platform</a> でAPIキーを取得
+          </div>
+        </div>
+      </div>
+
+      <div class="card-section">
+        <button class="save-btn settings-save" onclick="saveSettings()">設定を保存する</button>
+      </div>
+    </div>
+
+    <!-- Danger zone: clear all -->
+    <div class="card" style="border-color: #F5C6C2;">
+      <div class="card-section">
+        <div class="section-label" style="color: var(--c-danger);">データ管理</div>
+        <button onclick="clearAllData()" style="
+          width:100%; padding: 12px;
+          border: 1.5px solid var(--c-danger);
+          background: var(--c-danger-light);
+          border-radius: var(--radius-sm);
+          color: var(--c-danger);
+          font-size: 13px; font-weight: 600;
+          cursor: pointer; font-family: var(--font-body);
+        ">すべてのデータを消去する</button>
+      </div>
+    </div>
+  </div><!-- /settings-panel -->
+
+  </div><!-- /col-left -->
+
+</main>
+
+<script>
+/* =====================================================
+   APP STATE
+===================================================== */
+let currentTab  = 'blog';
+let currentStars = 5;
+let appConfig   = {};
+let stats       = { total: 0, g: 0, c: 0, o: 0 };
+
+const STORAGE_KEYS = {
+  knowledge: 'kometsum_knowledge',
+  settings:  'kometsum_settings',
+  stats:     'kometsum_stats',
+};
+
+/* =====================================================
+   SEASONAL DATA
+===================================================== */
+const SEASONAL_DATA = {
+  1:  { icon: '❄️',  text: '1月のおすすめ：新年のご挨拶、冬の田んぼの様子、お餅レシピ' },
+  2:  { icon: '❄️',  text: '2月のおすすめ：味噌づくり、春の準備、雪の田んぼ風景' },
+  3:  { icon: '🌱',  text: '3月のおすすめ：春の田起こし準備、種もみ選び、今年の品種紹介' },
+  4:  { icon: '🌸',  text: '4月のおすすめ：種まき開始、苗づくり、田んぼの水管理' },
+  5:  { icon: '🌾',  text: '5月のおすすめ：田植えレポート、水田の生き物、田植え体験' },
+  6:  { icon: '🌧️', text: '6月のおすすめ：梅雨の管理、稲の成長記録、除草のこだわり' },
+  7:  { icon: '☀️', text: '7月のおすすめ：出穂の様子、夏の農作業、地域の祭り' },
+  8:  { icon: '🌻',  text: '8月のおすすめ：稲穂が実る風景、収穫準備、残暑の農作業' },
+  9:  { icon: '🌾',  text: '9月のおすすめ：稲刈りレポート、新米の魅力、収穫の喜び' },
+  10: { icon: '🍂',  text: '10月のおすすめ：新米出荷、食味レポート、はさがけ天日干し' },
+  11: { icon: '🍁',  text: '11月のおすすめ：感謝の気持ち、冬支度、お歳暮ギフト' },
+  12: { icon: '🎅',  text: '12月のおすすめ：年末ご挨拶、お正月のお米料理、一年の振り返り' },
+};
+
+/* =====================================================
+   INIT
+===================================================== */
+async function init() {
+  // Load seasonal hint
+  const month = new Date().getMonth() + 1;
+  const s = SEASONAL_DATA[month];
+  document.getElementById('seasonal-icon').textContent = s.icon;
+  document.getElementById('seasonal-text').textContent = s.text;
+
+  // Load stats
+  const savedStats = JSON.parse(localStorage.getItem(STORAGE_KEYS.stats) || 'null');
+  if (savedStats) { stats = savedStats; renderStats(); }
+
+  // Load config.json
+  await loadConfig();
+
+  // Load knowledge + settings
+  loadKnowledgeUI();
+  loadSettingsUI();
+  updateKnowledgeStatus();
+  updateKeyIndicators();
+}
+
+/* =====================================================
+   CONFIG.JSON
+===================================================== */
+async function loadConfig() {
+  try {
+    const res = await fetch('./config.json');
+    if (!res.ok) throw new Error('not found');
+    appConfig = await res.json();
+  } catch (e) {
+    // Fallback defaults
+    appConfig = {
+      farmName: '農業生産法人 有限会社 銀波',
+      tagline: '記事ジェネレーター',
+      appTitle: 'SmartHP｜Job',
+      blogCategories: [
+        '稲作の日常・田んぼだより',
+        'お米の品種紹介・食べ比べ',
+        '農作業の裏側・こだわり',
+        'お客様の声・つながり',
+        '季節の暮らし・食卓レシピ',
+        '農業経営・地域の取り組み',
+      ],
+      defaultModels: {
+        gemini:  'gemini-2.0-flash',
+        claude:  'claude-3-haiku-20240307',
+        chatgpt: 'gpt-4o-mini',
+      },
+    };
+  }
+
+  // Apply config to UI
+  document.getElementById('app-title').textContent  = appConfig.appTitle  || 'SmartHP｜Job';
+  document.getElementById('app-tagline').textContent = appConfig.tagline  || '米農家の記事生成 Job';
+  document.title = `${appConfig.appTitle || 'SmartHP｜Job'} 記事ジェネレーター`;
+
+  // Populate blog categories from config
+  const sel = document.getElementById('blog-category');
+  sel.innerHTML = '';
+  (appConfig.blogCategories || []).forEach(cat => {
+    const opt = document.createElement('option');
+    opt.textContent = cat;
+    sel.appendChild(opt);
+  });
+
+  // If knowledge has a farm name, show it in header; otherwise use config
+  const know = JSON.parse(localStorage.getItem(STORAGE_KEYS.knowledge) || '{}');
+  const displayName = know.farmName || appConfig.farmName || '稼働中';
+  document.getElementById('farm-name-badge').textContent = displayName;
+}
+
+/* =====================================================
+   TAB SWITCH
+===================================================== */
+function switchTab(tab, btn) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  const isGenerate = ['blog', 'instagram', 'review'].includes(tab);
+
+  document.getElementById('generate-panel').style.display  = isGenerate ? '' : 'none';
+  document.getElementById('knowledge-panel').classList.toggle('active', tab === 'knowledge');
+  document.getElementById('settings-panel').classList.toggle('active', tab === 'settings');
+
+  if (isGenerate) {
+    document.getElementById('output-area').style.display = 'none';
+    document.getElementById('section-blog').style.display      = tab === 'blog'      ? '' : 'none';
+    document.getElementById('section-instagram').style.display = tab === 'instagram' ? '' : 'none';
+    document.getElementById('section-review').style.display    = tab === 'review'    ? '' : 'none';
+
+    const genBtn = document.getElementById('generate-btn');
+    if (tab === 'blog')      genBtn.textContent = '記事を生成する';
+    else if (tab === 'instagram') genBtn.textContent = '投稿文を生成する';
+    else                    genBtn.textContent = '返信文を生成する';
+  }
+}
+
+/* =====================================================
+   MODEL SELECTOR
+===================================================== */
+function selectModel(btn) {
+  document.querySelectorAll('.model-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function getSelectedModel() {
+  const active = document.querySelector('.model-btn.active');
+  return active ? active.dataset.model : 'Gemini';
+}
+
+/* =====================================================
+   CHIP SELECTOR
+===================================================== */
+function selectChip(chip, groupId) {
+  const group = document.getElementById(groupId);
+  group.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+  chip.classList.add('selected');
+}
+
+function getSelectedChip(groupId) {
+  const sel = document.querySelector(`#${groupId} .chip.selected`);
+  return sel ? sel.textContent.trim() : '';
+}
+
+/* =====================================================
+   STARS
+===================================================== */
+function setStars(n) {
+  currentStars = n;
+  document.querySelectorAll('#review-stars .star-btn').forEach((b, i) => {
+    b.classList.toggle('active', i < n);
+  });
+}
+
+/* =====================================================
+   KNOWLEDGE – localStorage
+===================================================== */
+function getKnowledge() {
+  return JSON.parse(localStorage.getItem(STORAGE_KEYS.knowledge) || '{}');
+}
+
+function loadKnowledgeUI() {
+  const k = getKnowledge();
+  document.getElementById('k-farm-name').value   = k.farmName   || '';
+  document.getElementById('k-basic-info').value  = k.basicInfo  || '';
+  document.getElementById('k-philosophy').value  = k.philosophy || '';
+  document.getElementById('k-commitment').value  = k.commitment || '';
+  document.getElementById('k-history').value     = k.history    || '';
+  document.getElementById('k-customer').value    = k.customer   || '';
+  document.getElementById('k-ng-words').value    = k.ngWords    || '';
+}
+
+function saveKnowledge() {
+  const k = {
+    farmName:   document.getElementById('k-farm-name').value.trim(),
+    basicInfo:  document.getElementById('k-basic-info').value.trim(),
+    philosophy: document.getElementById('k-philosophy').value.trim(),
+    commitment: document.getElementById('k-commitment').value.trim(),
+    history:    document.getElementById('k-history').value.trim(),
+    customer:   document.getElementById('k-customer').value.trim(),
+    ngWords:    document.getElementById('k-ng-words').value.trim(),
+  };
+  localStorage.setItem(STORAGE_KEYS.knowledge, JSON.stringify(k));
+  updateKnowledgeStatus();
+  // Update badge
+  document.getElementById('farm-name-badge').textContent = k.farmName || appConfig.farmName || '稼働中';
+  showToast('✅ ナレッジを保存しました');
+}
+
+function updateKnowledgeStatus() {
+  const k = getKnowledge();
+  const filled = Object.values(k).filter(v => v && v.length > 0).length;
+  const el = document.getElementById('knowledge-status');
+  if (filled === 0) {
+    el.className = 'knowledge-status empty';
+    el.textContent = '🌾 ナレッジ未設定 — 設定するとAIの精度が上がります';
+  } else {
+    el.className = 'knowledge-status';
+    el.innerHTML = `🌾 <strong>${k.farmName || '農園名未設定'}</strong> のナレッジ設定済み（${filled}項目）`;
+  }
+}
+
+/* =====================================================
+   SETTINGS – localStorage (API keys)
+===================================================== */
+function getSettings() {
+  return JSON.parse(localStorage.getItem(STORAGE_KEYS.settings) || '{}');
+}
+
+function loadSettingsUI() {
+  const s = getSettings();
+  const setKeyField = (id, val) => {
+    const el = document.getElementById(id);
+    el.value = val || '';
+    el.classList.toggle('has-key', !!(val && val.length > 10));
+  };
+  setKeyField('key-gemini',  s.geminiKey);
+  setKeyField('key-claude',  s.claudeKey);
+  setKeyField('key-chatgpt', s.chatgptKey);
+}
+
+function saveSettings() {
+  const s = {
+    geminiKey:  document.getElementById('key-gemini').value.trim(),
+    claudeKey:  document.getElementById('key-claude').value.trim(),
+    chatgptKey: document.getElementById('key-chatgpt').value.trim(),
+  };
+  localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(s));
+  updateKeyIndicators();
+  showToast('✅ API設定を保存しました');
+}
+
+function updateKeyIndicators() {
+  const s = getSettings();
+  const setKI = (model, hasKey) => {
+    const el = document.getElementById(`ki-${model}`);
+    if (!el) return;
+    el.className = `model-key-indicator ${hasKey ? 'ok' : 'none'}`;
+    el.textContent = hasKey ? '✓' : '!';
+    el.closest('.model-btn').classList.toggle('no-key', !hasKey);
+  };
+  setKI('Gemini',  !!(s.geminiKey  && s.geminiKey.length  > 5));
+  setKI('Claude',  !!(s.claudeKey  && s.claudeKey.length  > 5));
+  setKI('ChatGPT', !!(s.chatgptKey && s.chatgptKey.length > 5));
+}
+
+function toggleKeyVisibility(inputId, btn) {
+  const el = document.getElementById(inputId);
+  if (el.type === 'password') { el.type = 'text'; btn.textContent = '🙈'; }
+  else                        { el.type = 'password'; btn.textContent = '👁'; }
+}
+
+function clearAllData() {
+  if (!confirm('すべてのナレッジとAPIキーを消去しますか？')) return;
+  Object.values(STORAGE_KEYS).forEach(k => localStorage.removeItem(k));
+  loadKnowledgeUI();
+  loadSettingsUI();
+  updateKnowledgeStatus();
+  updateKeyIndicators();
+  stats = { total: 0, g: 0, c: 0, o: 0 };
+  renderStats();
+  showToast('🗑 データを消去しました');
+}
+
+/* =====================================================
+   PROMPT BUILDER
+===================================================== */
+function buildKnowledgeContext() {
+  const k = getKnowledge();
+  const parts = [];
+  if (k.farmName)   parts.push(`農園名：${k.farmName}`);
+  if (k.basicInfo)  parts.push(`農園の基本情報：${k.basicInfo}`);
+  if (k.philosophy) parts.push(`想い・理念：${k.philosophy}`);
+  if (k.commitment) parts.push(`こだわり・特徴：${k.commitment}`);
+  if (k.history)    parts.push(`農園の歴史：${k.history}`);
+  if (k.customer)   parts.push(`顧客情報：${k.customer}`);
+  if (k.ngWords)    parts.push(`使用禁止ワード（絶対に使わないこと）：${k.ngWords}`);
+  return parts.length > 0
+    ? `【農園ナレッジ】\n${parts.join('\n')}\n\n`
+    : '';
+}
+
+function buildPrompt() {
+  const ctx = buildKnowledgeContext();
+  let prompt = '';
+
+  if (currentTab === 'blog') {
+    const cat    = document.getElementById('blog-category').value;
+    const kw     = document.getElementById('blog-keyword').value.trim() || cat;
+    const length = document.getElementById('blog-length').value;
+    const tone   = document.getElementById('blog-tone').value;
+    const extra  = document.getElementById('blog-extra').value.trim();
+    const lenLabel = length === '500' ? '500〜800字' : length === '1500' ? '1500〜2000字' : '800〜1200字';
+
+    prompt = `${ctx}あなたは米農家のブログ担当ライターです。
+以下の条件でブログ記事を日本語で書いてください。
+
+カテゴリ：${cat}
+テーマ・キーワード：${kw}
+文字数の目安：${lenLabel}
+文章のトーン：${tone}
+${extra ? `追加指示：${extra}` : ''}
+
+【出力形式】
+- 魅力的なタイトル（H1）を1行目に書く
+- 導入文 → 本文（適宜見出しを入れる） → まとめ の構成で書く
+- 読者に語りかけるような自然な文体で書く
+- 農家の現場感・リアリティを大切にする`;
+
+  } else if (currentTab === 'instagram') {
+    const type    = getSelectedChip('insta-type');
+    const photo   = document.getElementById('insta-photo').value.trim() || '田んぼの風景';
+    const message = document.getElementById('insta-message').value.trim() || 'お米への思いを伝えたい';
+    const hashTag = getSelectedChip('insta-hashtag');
+
+    prompt = `${ctx}あなたは米農家のInstagram担当SNS運用者です。
+以下の条件でInstagram${type}の文章を日本語で作成してください。
+
+写真の内容：${photo}
+伝えたいこと：${message}
+ハッシュタグの雰囲気：${hashTag}
+
+【出力形式】
+- 本文（200〜400字）
+- 改行を効果的に使い読みやすく
+- 最後にハッシュタグを5〜10個（雰囲気に合わせて）
+- 農家らしいリアルな言葉を使う`;
+
+  } else { // review
+    const review = document.getElementById('review-content').value.trim() || '（レビュー内容なし）';
+    const tone   = getSelectedChip('review-tone');
+    const stars  = currentStars;
+
+    prompt = `${ctx}あなたは米農家のカスタマーサポート担当です。
+以下のお客様レビューへの返信文を日本語で作成してください。
+
+星評価：${stars}つ星
+レビュー内容：
+${review}
+
+返信トーン：${tone}
+
+【出力形式】
+- 200〜350字程度の返信文
+- お客様への感謝を必ず含める
+- 農家ならではの温かみのある表現を使う
+- ネガティブレビューの場合は真摯に改善の姿勢を示す`;
+  }
+
+  return prompt;
+}
+
+/* =====================================================
+   API CALLS
+===================================================== */
+async function callGemini(prompt, apiKey) {
+  const model = (appConfig.defaultModels && appConfig.defaultModels.gemini) || 'gemini-2.0-flash';
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: { temperature: 0.8, maxOutputTokens: 2048 },
+    }),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error?.message || `Gemini APIエラー (${res.status})`);
+  }
+  const data = await res.json();
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || '（レスポンスが空です）';
+}
+
+async function callClaude(prompt, apiKey) {
+  const model = (appConfig.defaultModels && appConfig.defaultModels.claude) || 'claude-3-haiku-20240307';
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+    },
+    body: JSON.stringify({
+      model,
+      max_tokens: 2048,
+      messages: [{ role: 'user', content: prompt }],
+    }),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error?.message || `Claude APIエラー (${res.status})`);
+  }
+  const data = await res.json();
+  return data.content?.[0]?.text || '（レスポンスが空です）';
+}
+
+async function callChatGPT(prompt, apiKey) {
+  const model = (appConfig.defaultModels && appConfig.defaultModels.chatgpt) || 'gpt-4o-mini';
+  const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model,
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.8,
+      max_tokens: 2048,
+    }),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.error?.message || `ChatGPT APIエラー (${res.status})`);
+  }
+  const data = await res.json();
+  return data.choices?.[0]?.message?.content || '（レスポンスが空です）';
+}
+
+/* =====================================================
+   GENERATE
+===================================================== */
+async function generate() {
+  const btn     = document.getElementById('generate-btn');
+  const errBox  = document.getElementById('error-box');
+  const model   = getSelectedModel();
+  const settings = getSettings();
+
+  // Validate API key
+  let apiKey = '';
+  if (model === 'Gemini')  apiKey = settings.geminiKey  || '';
+  if (model === 'Claude')  apiKey = settings.claudeKey  || '';
+  if (model === 'ChatGPT') apiKey = settings.chatgptKey || '';
+
+  if (!apiKey || apiKey.length < 10) {
+    errBox.className = 'error-box show';
+    errBox.textContent = `⚠️ ${model}のAPIキーが設定されていません。「設定」タブからAPIキーを入力してください。`;
+    errBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    return;
+  }
+
+  errBox.className = 'error-box';
+  const originalText = btn.textContent;
+  btn.textContent = `${model}で生成中...`;
+  btn.classList.add('loading');
+  document.getElementById('output-area').classList.remove('show');
+  setCharSpeech('generating');
+
+  try {
+    const prompt = buildPrompt();
+    let result = '';
+
+    if (model === 'Gemini')  result = await callGemini(prompt, apiKey);
+    if (model === 'Claude')  result = await callClaude(prompt, apiKey);
+    if (model === 'ChatGPT') result = await callChatGPT(prompt, apiKey);
+
+    // Update stats
+    const now = new Date();
+    const monthKey = `${now.getFullYear()}-${now.getMonth() + 1}`;
+    if (stats.month !== monthKey) stats = { total: 0, g: 0, c: 0, o: 0, month: monthKey };
+    stats.total++;
+    if (model === 'Gemini')  stats.g++;
+    if (model === 'Claude')  stats.c++;
+    if (model === 'ChatGPT') stats.o++;
+    localStorage.setItem(STORAGE_KEYS.stats, JSON.stringify(stats));
+    renderStats();
+
+    // Output
+    const titles = { blog: 'ブログ記事', instagram: 'Instagram投稿文', review: 'レビュー返信文' };
+    document.getElementById('output-title').textContent = `${titles[currentTab]} (${model})`;
+    document.getElementById('output-body').textContent  = result;
+    const doneKey = `done_${currentTab}`;
+    setCharSpeech(doneKey);
+    const outputArea = document.getElementById('output-area');
+    outputArea.classList.add('show');
+    outputArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  } catch (e) {
+    setCharSpeech('error');
+    errBox.className = 'error-box show';
+    errBox.textContent = `❌ 生成に失敗しました：${e.message}`;
+    errBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  btn.textContent = originalText;
+  btn.classList.remove('loading');
+}
+
+/* =====================================================
+   STATS
+===================================================== */
+function renderStats() {
+  document.getElementById('stats-total').textContent = stats.total || 0;
+  document.getElementById('stats-g').textContent     = stats.g     || 0;
+  document.getElementById('stats-c').textContent     = stats.c     || 0;
+  document.getElementById('stats-o').textContent     = stats.o     || 0;
+}
+
+/* =====================================================
+   COPY OUTPUT
+===================================================== */
+function copyOutput(event) {
+  const text = document.getElementById('output-body').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = '✅コピー済';
+    setTimeout(() => btn.textContent = orig, 1800);
+  });
+}
+
+/* =====================================================
+   HISTORY (stub)
+===================================================== */
+function showHistory() {
+  showToast('📋 履歴機能は今後追加予定です', false);
+}
+
+/* =====================================================
+   TOAST
+===================================================== */
+function showToast(msg, isError = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast${isError ? ' error' : ''} show`;
+  setTimeout(() => { t.className = `toast${isError ? ' error' : ''}`; }, 2600);
+}
+
+/* =====================================================
+   CHARACTER SPEECH
+===================================================== */
+const CHAR_SPEECHES = {
+  idle:       'なにを書きますか？✨',
+  generating: '生成中です...🌾',
+  done_blog:  '記事ができました！📝',
+  done_insta: '投稿文ができました！📸',
+  done_review:'返信文ができました！⭐',
+  error:      'エラーが出ました...😓',
+};
+
+function setCharSpeech(key) {
+  const el = document.getElementById('char-speech');
+  if (el) el.textContent = CHAR_SPEECHES[key] || CHAR_SPEECHES.idle;
+}
+
+/* =====================================================
+   START
+===================================================== */
+init();
+</script>
+
+</body>
+</html>

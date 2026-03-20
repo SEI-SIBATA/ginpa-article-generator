@@ -1,0 +1,18 @@
+{
+  "farmName": "農業生産法人 有限会社 銀波",
+  "tagline": "記事ジェネレーター",
+  "appTitle": "SmartHP｜Job",
+  "blogCategories": [
+    "稲作の日常・田んぼだより",
+    "お米の品種紹介・食べ比べ",
+    "農作業の裏側・こだわり",
+    "お客様の声・つながり",
+    "季節の暮らし・食卓レシピ",
+    "農業経営・地域の取り組み"
+  ],
+  "defaultModels": {
+    "gemini": "gemini-2.0-flash",
+    "claude": "claude-3-haiku-20240307",
+    "chatgpt": "gpt-4o-mini"
+  }
+}
