@@ -1087,27 +1087,7 @@ body {
 
     <div class="card">
       <div class="card-section">
-        <div class="section-label">AIモデル</div>
-        <div class="model-grid">
-          <button class="model-btn active" data-model="Gemini" onclick="selectModel(this)">
-            <span class="model-key-indicator" id="ki-Gemini">✓</span>
-            <span class="model-badge">おすすめ</span>
-            <span class="model-name">Gemini</span>
-            <span class="model-desc">無料枠あり</span>
-          </button>
-          <button class="model-btn" data-model="Claude" onclick="selectModel(this)">
-            <span class="model-key-indicator" id="ki-Claude">✓</span>
-            <span class="model-name">Claude</span>
-            <span class="model-desc">高品質文章</span>
-          </button>
-          <button class="model-btn" data-model="ChatGPT" onclick="selectModel(this)">
-            <span class="model-key-indicator" id="ki-ChatGPT">✓</span>
-            <span class="model-name">ChatGPT</span>
-            <span class="model-desc">バランス型</span>
-          </button>
-        </div>
-        <!-- knowledge status -->
-        <div style="margin-top: 12px;" id="knowledge-status-bar">
+        <div id="knowledge-status-bar">
           <div class="knowledge-status empty" id="knowledge-status">
             🌾 ナレッジ未設定 — 設定するとAIの精度が上がります
           </div>
@@ -1298,6 +1278,28 @@ body {
       </div>
 
       <div class="card-section">
+        <div class="section-label">使用するAIモデル</div>
+        <div class="model-grid">
+          <button class="model-btn active" data-model="Gemini" onclick="selectModel(this)">
+            <span class="model-key-indicator" id="ki-Gemini">✓</span>
+            <span class="model-badge">おすすめ</span>
+            <span class="model-name">Gemini</span>
+            <span class="model-desc">無料枠あり</span>
+          </button>
+          <button class="model-btn" data-model="Claude" onclick="selectModel(this)">
+            <span class="model-key-indicator" id="ki-Claude">✓</span>
+            <span class="model-name">Claude</span>
+            <span class="model-desc">高品質文章</span>
+          </button>
+          <button class="model-btn" data-model="ChatGPT" onclick="selectModel(this)">
+            <span class="model-key-indicator" id="ki-ChatGPT">✓</span>
+            <span class="model-name">ChatGPT</span>
+            <span class="model-desc">バランス型</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="card-section">
 
         <!-- Gemini -->
         <div class="api-key-row">
@@ -1430,7 +1432,8 @@ async function init() {
   updateKnowledgeStatus();
   updateKeyIndicators();
 
-  // 自動保存のセットアップ
+  // モデル選択の復元 & 自動保存のセットアップ
+  loadSelectedModel();
   setupAutoSaveKeys();
   setupAutoSaveKnowledge();
 }
@@ -1518,11 +1521,21 @@ function switchTab(tab, btn) {
 function selectModel(btn) {
   document.querySelectorAll('.model-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
+  // 選択をlocalStorageに保存
+  localStorage.setItem('kometsum_selected_model', btn.dataset.model);
 }
 
 function getSelectedModel() {
   const active = document.querySelector('.model-btn.active');
   return active ? active.dataset.model : 'Gemini';
+}
+
+function loadSelectedModel() {
+  const saved = localStorage.getItem('kometsum_selected_model');
+  if (saved) {
+    const btn = document.querySelector(`.model-btn[data-model="${saved}"]`);
+    if (btn) selectModel(btn);
+  }
 }
 
 /* =====================================================
