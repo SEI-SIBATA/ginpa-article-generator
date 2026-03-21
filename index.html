@@ -1429,6 +1429,10 @@ async function init() {
   loadSettingsUI();
   updateKnowledgeStatus();
   updateKeyIndicators();
+
+  // 自動保存のセットアップ
+  setupAutoSaveKeys();
+  setupAutoSaveKnowledge();
 }
 
 /* =====================================================
@@ -1563,7 +1567,7 @@ function loadKnowledgeUI() {
   document.getElementById('k-ng-words').value    = k.ngWords    || '';
 }
 
-function saveKnowledge() {
+function saveKnowledge(silent = false) {
   const k = {
     farmName:   document.getElementById('k-farm-name').value.trim(),
     basicInfo:  document.getElementById('k-basic-info').value.trim(),
@@ -1575,9 +1579,24 @@ function saveKnowledge() {
   };
   localStorage.setItem(STORAGE_KEYS.knowledge, JSON.stringify(k));
   updateKnowledgeStatus();
-  // Update badge
   document.getElementById('farm-name-badge').textContent = k.farmName || appConfig.farmName || '稼働中';
-  showToast('✅ ナレッジを保存しました');
+  if (!silent) showToast('✅ ナレッジを保存しました');
+}
+
+/* ナレッジ入力時の自動保存（フォーカスが外れたとき） */
+function setupAutoSaveKnowledge() {
+  const fields = ['k-farm-name', 'k-basic-info', 'k-philosophy', 'k-commitment', 'k-history', 'k-customer', 'k-ng-words'];
+  let saveTimer = null;
+  fields.forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener('blur', () => {
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => {
+        saveKnowledge(true);
+        showToast('✅ ナレッジを自動保存しました');
+      }, 300);
+    });
+  });
 }
 
 function updateKnowledgeStatus() {
@@ -1612,7 +1631,7 @@ function loadSettingsUI() {
   setKeyField('key-chatgpt', s.chatgptKey);
 }
 
-function saveSettings() {
+function saveSettings(silent = false) {
   const s = {
     geminiKey:  document.getElementById('key-gemini').value.trim(),
     claudeKey:  document.getElementById('key-claude').value.trim(),
@@ -1620,7 +1639,30 @@ function saveSettings() {
   };
   localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(s));
   updateKeyIndicators();
-  showToast('✅ API設定を保存しました');
+  if (!silent) showToast('✅ API設定を保存しました');
+}
+
+/* APIキー入力時の自動保存（確認ダイアログ付き） */
+function setupAutoSaveKeys() {
+  const keyMap = {
+    'key-gemini':  { name: 'Gemini',  prop: 'geminiKey' },
+    'key-claude':  { name: 'Claude',  prop: 'claudeKey' },
+    'key-chatgpt': { name: 'ChatGPT', prop: 'chatgptKey' },
+  };
+  Object.entries(keyMap).forEach(([id, info]) => {
+    const el = document.getElementById(id);
+    el.addEventListener('blur', () => {
+      const val = el.value.trim();
+      const saved = getSettings();
+      const oldVal = saved[info.prop] || '';
+      if (val && val.length > 5 && val !== oldVal) {
+        if (confirm(`${info.name}のAPIキーを保存しますか？`)) {
+          saveSettings(true);
+          showToast(`✅ ${info.name}のAPIキーを保存しました`);
+        }
+      }
+    });
+  });
 }
 
 function updateKeyIndicators() {
